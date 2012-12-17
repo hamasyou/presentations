@@ -1,0 +1,6 @@
+span.na { color: #FF0000; font-weight:bold; }
+span.class { color: #006600; }
+span.keyword { color: #0000FF; }
+span.func { color: #990099; }
+span.params { color: #FF9900; }
+span.str, span.num { color: #CC0000; }

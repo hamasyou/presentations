@@ -1,0 +1,287 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Shower Presentation Engine</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=1274, user-scalable=no">
+	<link rel="shortcut icon" href="favicon.ico" >
+	<link rel="stylesheet" href="shower/themes/ribbon/styles/screen.css">
+	<link rel="stylesheet" href="shower/themes/ribbon/styles/print.css" media="print">
+	<link rel="stylesheet" href="code.css">
+	<!--
+		To apply styles to the certain slides
+		set slide ID to get needed elements
+		-->
+	<style>
+		#Cover h2 {
+			margin:65px 0 0;
+			color:#FFF;
+			text-align:center;
+			font-size:70px;
+			}
+		#Picture h2 {
+			color:#FFF;
+			}
+	</style>
+</head>
+<body class="list">
+	<header class="caption">
+		<h1>Titanium の痒いところを掻いていたら...</h1>
+		<p><a href="https://twitter.com/hamasyou">@hamasyou</a></p>
+	</header>
+	<section class="slide cover" id="Cover"><div>
+		<h2>Titanium の痒いところを掻いていたら...</h2>
+		<img src="pictures/cover.jpg" alt="">
+	</div></section>	
+	<section class="slide"><div>
+		<h2>自己紹介</h2>
+		<ul style="float:left">
+			<li>濱田 章吾（<a href="https://twitter.com/hamasyou">@hamasyou</a>）</li>
+			<li>株式会社 マウントポジション</li>
+			<li>プログラミング大好き</li>
+			<li>Ruby, JavaScript, Objective-C, Java 辺りをさわります</li>			
+			<li><a href="http://hamasyou.com">http://hamasyou.com</a> で技術書の書評を書いています</li>
+			<li>Ti歴: 2年くらい</li>
+			<li>座右の銘：質には量（量質転化）</li>
+		</ul>
+	</div></section>
+	<section class="slide"><div>
+		<h2><img src="pictures/appicon-treering.png"><img src="pictures/apptitle.png"></h2>		
+		<div style="float:left; width:550px">
+			<p>
+				先日公開した、初めての自社サービス。<br />
+				詳しくは <a href="http://treering.jp">http://treering.jp</a> を見てください。
+			</p>
+			<ul>
+				<li>シンプルな読書記録アプリ</li>
+				<li>読んだページに対してメモをつける</li>
+				<li>近いページにメモをつけたユーザとつながる</li>
+			</ul>
+		</div>
+		<img src="pictures/treering-screen01.png">
+		<div style="clear:both"></div>
+		
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>本編</h2>
+	</div></section>	
+	<section class="slide shout"><div>
+		<h2>Titanium の<br />痒いところ</h2>
+	</div></section>	
+	<section class="slide shout"><div>
+		<h2>を掻いていたら</h2>
+	</div></section>	
+	<section class="slide shout"><div>
+		<h2>オレオレ Framework ができました</h2>
+	</div></section>
+	<section class="slide"><div>
+		<h2></h2>
+		<p class="place m">※ 文中に出てくるコードは CoffeeScript です</p>
+	</div></section>	
+	<section class="slide"><div>
+		<h2>Titanium の痒いところ（概要）</h2>
+		<ol>
+			<li class="next">"画面遷移"のコードが画面遷移っぽくない<br /><code>nextWin.open()</code></li>
+			<li class="next">イベント通知の仕組みが UI コンポーネント経由か <code>Ti.App</code> を使うかに限られる<br /><code>Ti.App.addEventListener 'updated', -></code></li>
+			<li class="next">O/R マッパーがない<br /><span class="na">×</span><code>model.save()</code></li>
+		</ol>
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>画面遷移<br />の痒いところ</h2>
+	</div></section>
+	<section class="slide"><div>
+		<h2>1. 画面遷移</h2>
+		<pre>
+			<code>win = <span class="class">Ti</span>.<span class="class">UI</span>.createWindow({title: <span class="str">'Home'</span>})</code>
+			<code>btn = <span class="class">Ti</span>.<span class="class">UI</span>.createButton({title: <span class="str">'nextWindow'</span>})</code>
+			<code>win.add(btn)</code>
+			<code>win.open()</code>
+			<code>btn.addEventListener <span class="str">'click'</span>, <span class="func">-&gt;</span></code>
+			<code>  nextWin = <span class="class">Ti</span>.<span class="class">UI</span>.createWindow({title: <span class="str">'Next'</span>})</code>
+			<code>  <mark>nextWin.open()</mark></code>
+		</pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>痒いところ</h2>
+		<pre>
+			<code><mark>nextWin.open()</mark></code>
+		</pre>
+		<p>
+			画面遷移しているのか、画面を開いているのか分かりづらい。。。<br />
+			そもそもこれだと、画面間に依存が発生してしまい、変更が大変です。<br />
+			もっと<strong>コントローラ</strong>とか<strong>ビュー</strong>とかそういうのが欲しい！！
+		</p>
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き</h2>
+		<pre>
+			<code>home = <span class="keyword">new</span> <span class="class">HomeViewController</span></code>
+			<code>home.open()</code>
+			<code>home.view.on <span class="str">'click:next'</span>, <span class="func">-&gt;</span></code>
+			<code>  next = <span class="keyword">new</span> <span class="class">NextViewController</span></code>
+			<code>  home.<mark>presentViewController</mark>(next, {animated: <span class="str">'slide'</span>})</code>
+		</pre>
+		<p class="note">こんなふうに書けたらステキじゃないですか？</p>
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>イベント通知<br />の痒いところ</h2>
+	</div></section>
+	<section class="slide"><div>
+		<h2>2. イベント通知</h2>
+		<pre>
+			<code><mark><span class="class">Ti</span>.<span class="class">App</span>.addEventListener</mark> <span class="str">'calculated'</span>, <span class="params">(params)</span> <span class="func">-&gt;</span></code>
+			<code>  alert(<span class="str">&quot;計算終了! #{params.total}&quot;</span>)</code>
+			<code> </code>
+			<code>btn = <span class="class">Ti</span>.<span class="class">UI</span>.createButton({title: <span class="str">'計算'</span>})</code>
+			<code>btn.addEventListener <span class="str">'click'</span>, <span class="func">-&gt;</span></code>
+			<code>  <mark><span class="class">Ti</span>.<span class="class">App</span>.fireEvent</mark>(<span class="str">'calculated'</span>, {total: <span class="str">xxx</span>})</code>
+		</pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>痒いところ</h2>
+		<pre>
+			<code><mark>Ti.App.addEventListener</mark></code>
+		</pre>
+		<p>
+			Ti.App.addEventListener はグローバルなので、使わなくなったら Ti.App.removeEventListener するのがルール。<br />
+			<br />
+			もっと<strong>手軽にイベント通知</strong>の仕組みが使いたい！！
+		</p>
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き(1)</h2>
+		<p>僕らには、<strong>Backbone.js</strong> があるじゃないか！</p>
+    <figure>
+			<blockquote>
+				<p><strong>Events</strong> is a module that can be mixed in to any object, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+			</blockquote>
+			<figcaption>Backbone.Events</figcaption>
+		</figure>	
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き(2)</h2>
+		<pre>
+			<code>calc = <span class="keyword">new</span> <span class="class">Calclator</span>  <mark class="comment"># Backbone.Events を継承</mark></code>
+			<code>calc.<mark>on</mark> <span class="str">'calculated'</span>, <span class="params">(total)</span> <span class="func">-&gt;</span></code>
+			<code>  alert(<span class="str">&quot;計算終了! #{total}&quot;</span>)</code>
+			<code> </code>
+			<code>btn = <span class="class">Ti</span>.<span class="class">UI</span>.createButton({title: <span class="str">'計算'</span>})</code>
+			<code>btn.addEventListener <span class="str">'click'</span>, <span class="func">-&gt;</span></code>
+			<code>  calc.calculate(<span class="num">10</span>, <span class="num">20</span>)</code>
+			<code>  calc.trigger(<span class="str">"calculated"</span>, calc.total)</code>
+		</pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き(3)</h2>
+		<p>Backbone.js は別にブラウザだけでつかうものでもないです。alloy でも Backbone.js 取り入れられてます。</p>
+		<p>今回作ったオレオレフレームワークでは、Backbone.Events を <strong>Controller</strong> と <strong>View</strong> の親クラスにも使っています。</p>
+		<p class="note">オレオレフレームワークの詳細は機会があれば話します</p>
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>データベース処理<br />の痒いところ</h2>
+	</div></section>
+	<section class="slide"><div>
+		<h2>3. データベース処理</h2>
+		<pre>
+			<code>db = <span class="class">Ti</span>.<span class="class">Database</span>.open(<span class="str">'mydb'</span>)</code>
+			<code>rows = db.<mark>execute</mark>(<span class="str">'SELECT * FROM memos WHERE id = ?'</span>, id)</code>
+			<code><mark class="comment"># ...</mark></code>
+			<code>db.execute(<span class="str">'INSERT INTO memos (txt) values (?)'</span>, <span class="str">'foobar'</span>)</code>
+			<code>db.close()</code>
+		</pre>
+	</div></section>	
+	<section class="slide"><div>
+		<h2>痒いところ</h2>
+		<pre>
+			<code><mark>db.execute</mark></code>
+		</pre>
+		<p>
+			SQL 文を書かないといけないとか、もうめんどくさいよー。<br />
+			スマフォアプリでガチガチの SQL が必要な場面なんて稀では？？<br />
+			<br />
+			<strong>O/R マッパー</strong>使いたいよー。
+		</p>
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き(1)</h2>
+		<p>僕らには、<strong>persistence.js</strong> があるじゃないか！</p>
+    <figure>
+			<blockquote>
+				<p><strong>persistence.js</strong> is a asynchronous Javascript object-relational mapper library. </p>
+			</blockquote>			
+		</figure>	
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き(2)</h2>
+		<pre>
+			<code>p = <span class="keyword">require</span>(<span class="str">'/persistence'</span>).persistence</code>
+			<code>pstore = <span class="keyword">require</span>(<span class="str">'/persistence.store.titanium'</span>)</code>
+			<code>pstore.config(p, <span class="str">'mydb'</span>)</code>			
+			<code> </code>
+			<code><span class="class">Memo</span> = p.define <span class="str">'memos'</span>, {</code>
+			<code>  txt: <span class="str">'TEXT'</span></code>
+		  <code>}</code>
+		</pre>
+	</div></section>
+	<section class="slide"><div>
+		<h2>掻き掻き(3)</h2>
+		<pre>
+			<code>memo = <span class="keyword">new</span> <span class="class">Memo</span>({txt: <span class="str">'これはメモです'</span>})</code>
+			<code><mark>memo.save()</mark></code>
+			<code><mark><span class="class">Memo</span>.all().list</mark> <span class="params">(memos)</span> <span class="func">-&gt;</span></code>
+			<code>  alert(memos)</code>			
+		</pre>
+		<p class="note">fetch 処理がちょっと分かりづらいですが保存や更新はらくちん</p>
+	</div></section>
+	<section class="slide"><div>
+		<h2>まとめ</h2>
+		<ul>
+			<li class="next">画面遷移を <code>nextWin.open()</code> はもう古い？！
+				<ul><li class="next"><strong>MVC</strong> パターンを使って画面遷移は Objective-C の様にスマートに</li></ul>
+			</li>
+			<li class="next"><code>Ti.App.addEventListener</code> に泣かされない！
+				<ul><li class="next">イベント通知はどんなオブジェクトでも使えるよ</li></ul>
+			</li>
+			<li class="next"><code>Ti.Database</code> を直接使うのはもうやめる！
+				<ul><li class="next">persistence.js 使えばらくらく DB 処理</li></ul>
+			</li>
+		</ul>
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>ん？<br />でもそれって</h2>		
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>alloy が解決してるんじゃ？</h2>		
+	</div></section>
+	<section class="slide"><div>
+		<h2></h2>
+		<p class="place m">
+			まぁ、alloy はいろいろとアレなので・・・
+		</p>		
+	</div></section>
+	<section class="slide"><div>
+		<h2></h2>
+		<p class="place m">
+			オレオレフレームワークをもっと詳しく聞きたい方は空き時間にでも話しかけてください。
+		</p>				
+	</div></section>
+	
+	<section class="slide"><div>
+		<h2></h2>
+		<p class="place m">
+			ご清聴ありがとうございました。
+		</p>				
+	</div></section>
+	<section class="slide shout"><div>
+		<h2>fin.</h2>
+	</div></section>
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<script src="shower/shower.js"></script>
+	<!-- Copyright © 2010–2012 Vadim Makeev — pepelsbey.net -->
+	<!-- Photos by John Carey — fiftyfootshadows.net -->
+</body>
+</html>
